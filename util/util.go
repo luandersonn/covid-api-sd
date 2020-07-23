@@ -9,7 +9,7 @@ import (
 
 // CasesPerCityResponse é a estrutura de resposta para solicitações de cidades e a quantidade de casos
 type CasesPerCityResponse struct {
-	Time   time.Time      `json:"date"`
+	Date   time.Time      `json:"date"`
 	Cities []CasesPerCity `json:"cities"`
 }
 
@@ -17,6 +17,22 @@ type CasesPerCityResponse struct {
 type CasesPerCity struct {
 	City  string `json:"city"`
 	Cases int    `json:"cases"`
+}
+
+// CovidCase representa um caso de covid-19
+type CovidCase struct {
+	Pacient Pacient   `json:"pacient"`
+	Date    time.Time `json:"date"`
+}
+
+// Pacient representa paciente
+type Pacient struct {
+	Code     string `json:"code,omitempty"`
+	Age      string `json:"age,omitempty"`
+	Gender   string `json:"gender,omitempty"`
+	District string `json:"district,omitempty"`
+	City     string `json:"city,omitempty"`
+	State    string `json:"state,omitempty"`
 }
 
 // GetCasesPerCity filtra os dados necessários a partir dos dados brutos.
@@ -30,13 +46,24 @@ func GetCasesPerCity(data []csv.CovidData) CasesPerCityResponse {
 	}
 
 	response := CasesPerCityResponse{
-		Time:   time.Now(),
+		Date:   time.Now(),
 		Cities: mapCities(cities),
 	}
 	// Ordena as cidades a partir do maior número de casos
 	sort.SliceStable(response.Cities, func(i, j int) bool { return response.Cities[i].Cases > response.Cities[j].Cases })
 
 	return response
+}
+
+// Find procura por um caso de covid baseado no comparador passado
+// através de uma função lambda
+func Find(slice []csv.CovidData, comparer func(csv.CovidData) bool) *csv.CovidData {
+	for _, n := range slice {
+		if comparer(n) {
+			return &n
+		}
+	}
+	return nil
 }
 
 func mapCities(cities map[string]int) []CasesPerCity {

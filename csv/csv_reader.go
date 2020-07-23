@@ -13,11 +13,12 @@ var data []CovidData
 
 // CovidData
 type CovidData struct {
-	PacientCode   string
-	PacientAge    string
-	PacientGender string
-	PacientCity   string
-	PacientState  string
+	PacientCode     string
+	PacientAge      string
+	PacientGender   string
+	PacientDistrict string
+	PacientCity     string
+	PacientState    string
 }
 
 // ReadFile faz o que o nome diz, lê o arquivo
@@ -61,7 +62,13 @@ func parseData(data string) ([]CovidData, error) {
 			log.Fatal(err)
 			return nil, err
 		}
-		p := CovidData{PacientCode: record[3], PacientAge: record[27], PacientCity: record[29], PacientState: record[25], PacientGender: record[33]}
+		p := CovidData{
+			PacientDistrict: record[0],
+			PacientCode:     record[3],
+			PacientAge:      record[27],
+			PacientCity:     record[29],
+			PacientState:    record[25],
+			PacientGender:   record[33]}
 		cases = append(cases, p)
 	}
 	return cases, nil

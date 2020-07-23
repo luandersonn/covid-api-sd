@@ -17,10 +17,18 @@ func main() {
 
 	port := 8080
 
-	// handle /all
+	// handle /cities
 	go func() {
 		http.HandleFunc("/cities", casesPerCitiesHandler)
 		log.Printf("Server \"/cities\" starting on port %v\n", port)
+		http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
+		wait.Done()
+	}()
+
+	// handle /pacient
+	go func() {
+		http.HandleFunc("/pacient", getPacientHandler)
+		log.Printf("Server \"/pacient\" starting on port %v\n", port)
 		http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
 		wait.Done()
 	}()
@@ -36,7 +44,7 @@ func printRequestInfo(request *http.Request) {
 	fmt.Printf("\tUser-Agent: %v\n", request.Header.Get("User-Agent"))
 }
 
-func casesPerCitiesHandler(responceWriter http.ResponseWriter, request *http.Request) {
+func casesPerCitiesHandler(responseWriter http.ResponseWriter, request *http.Request) {
 	printRequestInfo(request)
 
 	data, err := csv.ReadFile("/home/luandersonn/Downloads/casos_coronavirus.csv")
@@ -46,17 +54,44 @@ func casesPerCitiesHandler(responceWriter http.ResponseWriter, request *http.Req
 	dataJSON, err := json.Marshal(responseData)
 	ensureSuccessStatus(err)
 
-	responceWriter.Header().Set("Content-Type", "application/json")
-	fmt.Fprintln(responceWriter, string(dataJSON))
-	/*
-		// get  queries
-		for key, value := range request.URL.Query() {
-			fmt.Fprintf(responceWriter, "%v = %v\n", key, value)
-			b = true
+	responseWriter.Header().Set("Content-Type", "application/json")
+	fmt.Fprintln(responseWriter, string(dataJSON))
+}
+
+func getPacientHandler(responseWriter http.ResponseWriter, request *http.Request) {
+	printRequestInfo(request)
+
+	pacientCode := request.URL.Query().Get("id")
+	if pacientCode == "" {
+		http.Error(responseWriter, "Bad request: Query param: id", http.StatusBadRequest)
+		return
+	}
+
+	data, err := csv.ReadFile("/home/luandersonn/Downloads/casos_coronavirus.csv")
+	ensureSuccessStatus(err)
+
+	comparer := func(x csv.CovidData) bool {
+		return x.PacientCode == pacientCode
+	}
+
+	result := util.Find(data, comparer)
+	responseData := util.Pacient{}
+	if result != nil {
+		responseData = util.Pacient{
+			Age:      result.PacientAge,
+			Gender:   result.PacientGender,
+			District: result.PacientDistrict,
+			City:     result.PacientCity,
+			State:    result.PacientState,
+			Code:     result.PacientCode,
 		}
-		if b {
-			return
-		}*/
+	}
+	dataJSON, err := json.Marshal(responseData)
+	ensureSuccessStatus(err)
+
+	responseWriter.Header().Set("Content-Type", "application/json")
+	fmt.Fprintln(responseWriter, string(dataJSON))
+
 }
 
 func ensureSuccessStatus(e error) {
