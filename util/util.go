@@ -21,18 +21,13 @@ type CasesPerCity struct {
 
 // CovidCase representa um caso de covid-19
 type CovidCase struct {
-	Pacient Pacient   `json:"pacient"`
-	Date    time.Time `json:"date"`
-}
-
-// Pacient representa paciente
-type Pacient struct {
-	Code     string `json:"code,omitempty"`
-	Age      string `json:"age,omitempty"`
-	Gender   string `json:"gender,omitempty"`
-	District string `json:"district,omitempty"`
-	City     string `json:"city,omitempty"`
-	State    string `json:"state,omitempty"`
+	Code     string     `json:"code,omitempty"`
+	Age      string     `json:"age,omitempty"`
+	Gender   string     `json:"gender,omitempty"`
+	District string     `json:"district,omitempty"`
+	City     string     `json:"city,omitempty"`
+	State    string     `json:"state,omitempty"`
+	Date     *time.Time `json:"date,,omitempty"`
 }
 
 // GetCasesPerCity filtra os dados necessários a partir dos dados brutos.

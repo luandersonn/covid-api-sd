@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 var data []CovidData
@@ -19,6 +20,7 @@ type CovidData struct {
 	PacientDistrict string
 	PacientCity     string
 	PacientState    string
+	Date            *time.Time
 }
 
 // ReadFile faz o que o nome diz, lê o arquivo
@@ -62,9 +64,20 @@ func parseData(data string) ([]CovidData, error) {
 			log.Fatal(err)
 			return nil, err
 		}
+
+		if record[3] == "ab20a0a017af93d2a0bdf8eacb65faef" {
+			log.Println("PACIENTE")
+		}
+
+		var date *time.Time = nil
+		result, err := time.Parse("2006-01-02 15:04:05.0", record[20])
+		if err == nil {
+			date = &result
+		}
 		p := CovidData{
 			PacientDistrict: record[0],
 			PacientCode:     record[3],
+			Date:            date,
 			PacientAge:      record[27],
 			PacientCity:     record[29],
 			PacientState:    record[25],

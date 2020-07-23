@@ -33,6 +33,14 @@ func main() {
 		wait.Done()
 	}()
 
+	/*// handle /city
+	go func() {
+		http.HandleFunc("/pacient", getPacientHandler)
+		log.Printf("Server \"/pacient\" starting on port %v\n", port)
+		http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
+		wait.Done()
+	}()*/
+
 	// wait goroutines
 	wait.Wait()
 }
@@ -75,15 +83,16 @@ func getPacientHandler(responseWriter http.ResponseWriter, request *http.Request
 	}
 
 	result := util.Find(data, comparer)
-	responseData := util.Pacient{}
+	responseData := util.CovidCase{}
 	if result != nil {
-		responseData = util.Pacient{
+		responseData = util.CovidCase{
 			Age:      result.PacientAge,
 			Gender:   result.PacientGender,
 			District: result.PacientDistrict,
 			City:     result.PacientCity,
 			State:    result.PacientState,
 			Code:     result.PacientCode,
+			Date:     result.Date,
 		}
 	}
 	dataJSON, err := json.Marshal(responseData)
