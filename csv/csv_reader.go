@@ -20,6 +20,7 @@ type CovidData struct {
 	PacientDistrict string
 	PacientCity     string
 	PacientState    string
+	CityCode        string
 	Date            *time.Time
 }
 
@@ -54,19 +55,15 @@ func parseData(data string) ([]CovidData, error) {
 	for {
 		record, err := reader.Read()
 		c++
-		if c == 1 {
+		if c == 1 { // CABELHAÇO
 			continue
 		}
-		if err == io.EOF {
+		if err == io.EOF { // FIM DO ARQUIVO
 			break
 		}
 		if err != nil {
 			log.Fatal(err)
 			return nil, err
-		}
-
-		if record[3] == "ab20a0a017af93d2a0bdf8eacb65faef" {
-			log.Println("PACIENTE")
 		}
 
 		var date *time.Time = nil
@@ -76,6 +73,7 @@ func parseData(data string) ([]CovidData, error) {
 		}
 		p := CovidData{
 			PacientDistrict: record[0],
+			CityCode:        record[2],
 			PacientCode:     record[3],
 			Date:            date,
 			PacientAge:      record[27],

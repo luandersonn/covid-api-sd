@@ -33,18 +33,19 @@ func main() {
 		wait.Done()
 	}()
 
-	/*// handle /city
+	// handle /city
 	go func() {
-		http.HandleFunc("/pacient", getPacientHandler)
-		log.Printf("Server \"/pacient\" starting on port %v\n", port)
+		http.HandleFunc("/city", getCityHandler)
+		log.Printf("Server \"/city\" starting on port %v\n", port)
 		http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
 		wait.Done()
-	}()*/
+	}()
 
 	// wait goroutines
 	wait.Wait()
 }
 
+// Printa as informações de cada requisição
 func printRequestInfo(request *http.Request) {
 	fmt.Println("New request")
 	fmt.Printf("\tURL: \"%v\"\n", request.RequestURI)
@@ -52,6 +53,7 @@ func printRequestInfo(request *http.Request) {
 	fmt.Printf("\tUser-Agent: %v\n", request.Header.Get("User-Agent"))
 }
 
+// Obtém o número de casos por cidade
 func casesPerCitiesHandler(responseWriter http.ResponseWriter, request *http.Request) {
 	printRequestInfo(request)
 
@@ -66,12 +68,13 @@ func casesPerCitiesHandler(responseWriter http.ResponseWriter, request *http.Req
 	fmt.Fprintln(responseWriter, string(dataJSON))
 }
 
+// Obtém detalhes de um paciente através do código do paciente
 func getPacientHandler(responseWriter http.ResponseWriter, request *http.Request) {
 	printRequestInfo(request)
 
-	pacientCode := request.URL.Query().Get("id")
+	pacientCode := request.URL.Query().Get("code")
 	if pacientCode == "" {
-		http.Error(responseWriter, "Bad request: Query param: id", http.StatusBadRequest)
+		http.Error(responseWriter, "Bad request: Query param: code", http.StatusBadRequest)
 		return
 	}
 
@@ -90,6 +93,7 @@ func getPacientHandler(responseWriter http.ResponseWriter, request *http.Request
 			Gender:   result.PacientGender,
 			District: result.PacientDistrict,
 			City:     result.PacientCity,
+			CityCode: result.CityCode,
 			State:    result.PacientState,
 			Code:     result.PacientCode,
 			Date:     result.Date,
@@ -100,7 +104,49 @@ func getPacientHandler(responseWriter http.ResponseWriter, request *http.Request
 
 	responseWriter.Header().Set("Content-Type", "application/json")
 	fmt.Fprintln(responseWriter, string(dataJSON))
+}
 
+// Obtém todos os casos de uma cidade pelo código da cidade
+func getCityHandler(responseWriter http.ResponseWriter, request *http.Request) {
+	printRequestInfo(request)
+
+	cityCode := request.URL.Query().Get("code")
+	if cityCode == "" {
+		http.Error(responseWriter, "Bad request: Query param: code", http.StatusBadRequest)
+		return
+	}
+
+	data, err := csv.ReadFile("/home/luandersonn/Downloads/casos_coronavirus.csv")
+	ensureSuccessStatus(err)
+
+	comparer := func(x csv.CovidData) bool {
+		return x.CityCode == cityCode
+	}
+
+	responseData := util.CityResponse{}
+	for _, covidCase := range util.Map(data, comparer) {
+
+		responseData.City = covidCase.PacientCity
+		responseData.State = covidCase.PacientState
+		responseData.Code = covidCase.CityCode
+
+		responseData.Cases = append(responseData.Cases,
+			util.CovidCase{
+				Age:      covidCase.PacientAge,
+				Gender:   covidCase.PacientGender,
+				District: covidCase.PacientDistrict,
+				Code:     covidCase.PacientCode,
+				Date:     covidCase.Date,
+			})
+	}
+
+	responseData.CasesCount = len(responseData.Cases)
+
+	dataJSON, err := json.Marshal(responseData)
+	ensureSuccessStatus(err)
+
+	responseWriter.Header().Set("Content-Type", "application/json")
+	fmt.Fprintln(responseWriter, string(dataJSON))
 }
 
 func ensureSuccessStatus(e error) {
