@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sort"
 	"sync"
+	"time"
 
 	"github.com/luandersonn/covid-api-sd/csv"
 	"github.com/luandersonn/covid-api-sd/util"
@@ -60,7 +62,24 @@ func casesPerCitiesHandler(responseWriter http.ResponseWriter, request *http.Req
 	data, err := csv.ReadFile("/home/luandersonn/Downloads/casos_coronavirus.csv")
 	ensureSuccessStatus(err)
 
-	responseData := util.GetCasesPerCity(data)
+	keySelector := func(item csv.CovidData) string {
+		return item.PacientCity
+	}
+	responseData := util.CasesPerCityResponse{Date: time.Now()}
+	for _, value := range util.GroupBy(data, keySelector) {
+		city := util.CasesPerCity{
+			City:       value[0].PacientCity,
+			CityCode:   value[0].CityCode,
+			CasesCount: len(value),
+		}
+		responseData.Cities = append(responseData.Cities, city)
+	}
+	// Ordena da cidade com maior quantidades de casos para a menor
+	comparer := func(i, j int) bool {
+		return responseData.Cities[i].CasesCount > responseData.Cities[j].CasesCount
+	}
+	sort.SliceStable(responseData.Cities, comparer)
+
 	dataJSON, err := json.Marshal(responseData)
 	ensureSuccessStatus(err)
 

@@ -1,7 +1,6 @@
 package util
 
 import (
-	"sort"
 	"time"
 
 	"github.com/luandersonn/covid-api-sd/csv"
@@ -15,8 +14,9 @@ type CasesPerCityResponse struct {
 
 // CasesPerCity armazena o nome da cidade e o número de casos
 type CasesPerCity struct {
-	City  string `json:"city"`
-	Cases int    `json:"cases"`
+	City       string `json:"city"`
+	CityCode   string `json:"city_code,omitempty"`
+	CasesCount int    `json:"cases_count"`
 }
 
 // CityResponse é a estrutura de resposta para solicitações de todos os pacientes de uma cidade específica
@@ -24,7 +24,7 @@ type CityResponse struct {
 	City       string      `json:"city,omitempty"`
 	State      string      `json:"state,omitempty"`
 	Code       string      `json:"code,omitempty"`
-	CasesCount int         `json:"casesCount,omitempty"`
+	CasesCount int         `json:"cases_count,omitempty"`
 	Cases      []CovidCase `json:"cases,omitempty"`
 }
 
@@ -35,37 +35,17 @@ type CovidCase struct {
 	Gender   string     `json:"gender,omitempty"`
 	District string     `json:"district,omitempty"`
 	City     string     `json:"city,omitempty"`
-	CityCode string     `json:"cityCode,omitempty"`
+	CityCode string     `json:"city_code,omitempty"`
 	State    string     `json:"state,omitempty"`
 	Date     *time.Time `json:"date,,omitempty"`
-}
-
-// GetCasesPerCity filtra os dados necessários a partir dos dados brutos.
-// Neste caso, ele retorna de forma ordenada a lista de cidades junto a sua quandidade de casos
-// da cidade com maior quantidade de casos para a menor
-func GetCasesPerCity(data []csv.CovidData) CasesPerCityResponse {
-	// Dicionário chave - valor (Nome da cidade - número de casos)
-	cities := make(map[string]int)
-	for _, value := range data {
-		cities[value.PacientCity]++
-	}
-
-	response := CasesPerCityResponse{
-		Date:   time.Now(),
-		Cities: mapCities(cities),
-	}
-	// Ordena as cidades a partir do maior número de casos
-	sort.SliceStable(response.Cities, func(i, j int) bool { return response.Cities[i].Cases > response.Cities[j].Cases })
-
-	return response
 }
 
 // Find procura por um caso de covid baseado no comparador passado
 // através de uma função lambda
 func Find(slice []csv.CovidData, comparer func(csv.CovidData) bool) *csv.CovidData {
-	for _, n := range slice {
-		if comparer(n) {
-			return &n
+	for _, item := range slice {
+		if comparer(item) {
+			return &item
 		}
 	}
 	return nil
@@ -83,18 +63,22 @@ func Map(slice []csv.CovidData, comparer func(csv.CovidData) bool) []csv.CovidDa
 	return result
 }
 
-func mapCities(cities map[string]int) []CasesPerCity {
-	data := []CasesPerCity{}
-	for key, value := range cities {
-		data = append(data, CasesPerCity{City: key, Cases: value})
+// GroupBy agrupa
+func GroupBy(slice []csv.CovidData, keySelector func(csv.CovidData) string) map[string][]csv.CovidData {
+	// Cria um dicionário [chave] -> slice de csv.CovidData
+	groups := make(map[string][]csv.CovidData)
+
+	for _, item := range slice {
+		groups[keySelector(item)] = append(groups[keySelector(item)], item)
 	}
-	return data
+	return groups
 }
 
-func unique(list []string) []string {
+// Unique remove strings repetidas
+func Unique(slice []string) []string {
 	keys := make(map[string]bool)
 	newList := []string{}
-	for _, entry := range list {
+	for _, entry := range slice {
 		if _, value := keys[entry]; !value {
 			keys[entry] = true
 			newList = append(newList, entry)
