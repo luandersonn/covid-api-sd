@@ -9,7 +9,8 @@ import (
 	"strings"
 
 	covid "github.com/luandersonn/covid-api-sd/protofile"
-	"github.com/utfutil"
+	//git clone https://github.com/malexdev/utfutil
+	"github.com/malexdev/utfutil"
 	"google.golang.org/grpc"
 )
 
