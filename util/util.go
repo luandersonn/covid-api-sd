@@ -30,14 +30,14 @@ type CityResponse struct {
 
 // CovidCase representa um caso de covid-19
 type CovidCase struct {
-	Code     string     `json:"code,omitempty"`
-	Age      string     `json:"age,omitempty"`
-	Gender   string     `json:"gender,omitempty"`
-	District string     `json:"district,omitempty"`
-	City     string     `json:"city,omitempty"`
-	CityCode string     `json:"city_code,omitempty"`
-	State    string     `json:"state,omitempty"`
-	Date     *time.Time `json:"date,,omitempty"`
+	Code     string `json:"code,omitempty"`
+	Age      string `json:"age,omitempty"`
+	Gender   string `json:"gender,omitempty"`
+	District string `json:"district,omitempty"`
+	City     string `json:"city,omitempty"`
+	CityCode string `json:"city_code,omitempty"`
+	State    string `json:"state,omitempty"`
+	Date     string `json:"date,,omitempty"`
 }
 
 // Find procura por um caso de covid baseado no comparador passado

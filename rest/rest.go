@@ -50,6 +50,7 @@ func main() {
 	wait.Wait()
 }
 
+// Faz a requisição de dados para o serviço de CSV
 func newRPCRequest() ([]*covid.CovidDataResponse, error) {
 	// Faz a ligação para o endereço do servidor RPC de leitura de csv
 	rpcAddress := "localhost:5001"
@@ -69,28 +70,21 @@ func newRPCRequest() ([]*covid.CovidDataResponse, error) {
 	defer cancel()
 
 	// Faz a requisição
-	stream, err := service.GetDataStream(ctx, &covid.CovidDataRequest{Name: "Server.go"})
+	stream, err := service.GetDataStream(ctx, &covid.CovidDataRequest{Name: "rest.go"})
 	if err != nil {
 		return nil, err
 	}
-	count := 0
+
 	// Faz o stream dos itens
 	covidCaseSlice := []*covid.CovidDataResponse{}
 	for {
 		covidCase, err := stream.Recv()
-		count++
+
 		if err == io.EOF {
 			return covidCaseSlice, nil
 		}
 		if err != nil {
 			return nil, err
-		}
-		if count > 10 && count < 20 {
-			if covidCase.GetPacientDistrict() == "" {
-				fmt.Println("NULL")
-			} else {
-				fmt.Println(covidCase.GetPacientDistrict())
-			}
 		}
 		covidCaseSlice = append(covidCaseSlice, covidCase)
 	}
@@ -98,10 +92,13 @@ func newRPCRequest() ([]*covid.CovidDataResponse, error) {
 
 // Printa as informações de cada requisição
 func printRequestInfo(request *http.Request) {
-	fmt.Println("New request")
-	fmt.Printf("\tURL: \"%v\"\n", request.RequestURI)
-	fmt.Printf("\tMethod: %v\n", request.Method)
-	fmt.Printf("\tUser-Agent: %v\n", request.Header.Get("User-Agent"))
+	/*
+		fmt.Println("New request")
+		fmt.Printf("\tURL: \"%v\"\n", request.RequestURI)
+		fmt.Printf("\tMethod: %v\n", request.Method)
+		fmt.Printf("\tUser-Agent: %v\n", request.Header.Get("User-Agent"))
+	*/
+	fmt.Printf("New REST request to %v\n", request.URL.EscapedPath())
 }
 
 // Obtém o número de casos por cidade
@@ -109,7 +106,12 @@ func casesPerCitiesHandler(responseWriter http.ResponseWriter, request *http.Req
 	printRequestInfo(request)
 
 	data, err := newRPCRequest()
-	ensureSuccessStatus(err)
+
+	if err != nil {
+		http.Error(responseWriter, "Error 503 - Service Unavailable", http.StatusServiceUnavailable)
+		fmt.Printf("Erro ao acessar serviço RPC: %v\n", err)
+		return
+	}
 
 	keySelector := func(item *covid.CovidDataResponse) string {
 		return item.PacientCity
@@ -147,7 +149,11 @@ func getPacientHandler(responseWriter http.ResponseWriter, request *http.Request
 	}
 
 	data, err := newRPCRequest()
-	ensureSuccessStatus(err)
+	if err != nil {
+		http.Error(responseWriter, "Error 503 - Service Unavailable", http.StatusServiceUnavailable)
+		fmt.Printf("Erro ao acessar serviço RPC: %v\n", err)
+		return
+	}
 
 	comparer := func(item *covid.CovidDataResponse) bool {
 		return item.PacientCode == pacientCode
@@ -164,7 +170,7 @@ func getPacientHandler(responseWriter http.ResponseWriter, request *http.Request
 			CityCode: result.CityCode,
 			State:    result.PacientState,
 			Code:     result.PacientCode,
-			//Date:     result.Date,
+			Date:     result.Date,
 		}
 	}
 	dataJSON, err := json.Marshal(responseData)
@@ -185,7 +191,11 @@ func getCityHandler(responseWriter http.ResponseWriter, request *http.Request) {
 	}
 
 	data, err := newRPCRequest()
-	ensureSuccessStatus(err)
+	if err != nil {
+		http.Error(responseWriter, "Error 503 - Service Unavailable", http.StatusServiceUnavailable)
+		fmt.Printf("Erro ao acessar serviço RPC: %v\n", err)
+		return
+	}
 
 	comparer := func(item *covid.CovidDataResponse) bool {
 		return item.CityCode == cityCode
@@ -204,7 +214,7 @@ func getCityHandler(responseWriter http.ResponseWriter, request *http.Request) {
 				Gender:   covidCase.PacientGender,
 				District: covidCase.PacientDistrict,
 				Code:     covidCase.PacientCode,
-				//Date:     covidCase.Date,
+				Date:     covidCase.Date,
 			})
 	}
 

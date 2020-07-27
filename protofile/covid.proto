@@ -17,7 +17,6 @@ message CovidDataRequest {
   string name = 1;
 }
 
-service CovidDataService {
-  rpc GetData (CovidDataRequest) returns (CovidDataResponse);  
+service CovidDataService {  
   rpc GetDataStream (CovidDataRequest) returns (stream CovidDataResponse);
 }

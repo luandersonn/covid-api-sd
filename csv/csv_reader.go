@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -21,15 +20,6 @@ const (
 )
 
 type csvReader struct{}
-
-func (reader *csvReader) GetData(ctx context.Context, request *covid.CovidDataRequest) (*covid.CovidDataResponse, error) {
-	fmt.Printf("New RPC request from %v: GetData(..)\n", request.GetName())
-	result, err := readFile(filePath)
-	if err == nil {
-		return result[0], nil
-	}
-	return nil, err
-}
 
 func (reader *csvReader) GetDataStream(request *covid.CovidDataRequest, stream covid.CovidDataService_GetDataStreamServer) error {
 	// Lê o arquivo

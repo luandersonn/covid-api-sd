@@ -203,16 +203,13 @@ var file_covid_proto_rawDesc = []byte{
 	0x0a, 0x04, 0x64, 0x61, 0x74, 0x65, 0x18, 0x08, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x64, 0x61,
 	0x74, 0x65, 0x22, 0x26, 0x0a, 0x10, 0x43, 0x6f, 0x76, 0x69, 0x64, 0x44, 0x61, 0x74, 0x61, 0x52,
 	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x32, 0x7e, 0x0a, 0x10, 0x43, 0x6f,
-	0x76, 0x69, 0x64, 0x44, 0x61, 0x74, 0x61, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x30,
-	0x0a, 0x07, 0x47, 0x65, 0x74, 0x44, 0x61, 0x74, 0x61, 0x12, 0x11, 0x2e, 0x43, 0x6f, 0x76, 0x69,
-	0x64, 0x44, 0x61, 0x74, 0x61, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x12, 0x2e, 0x43,
-	0x6f, 0x76, 0x69, 0x64, 0x44, 0x61, 0x74, 0x61, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x12, 0x38, 0x0a, 0x0d, 0x47, 0x65, 0x74, 0x44, 0x61, 0x74, 0x61, 0x53, 0x74, 0x72, 0x65, 0x61,
-	0x6d, 0x12, 0x11, 0x2e, 0x43, 0x6f, 0x76, 0x69, 0x64, 0x44, 0x61, 0x74, 0x61, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x1a, 0x12, 0x2e, 0x43, 0x6f, 0x76, 0x69, 0x64, 0x44, 0x61, 0x74, 0x61,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x30, 0x01, 0x42, 0x09, 0x5a, 0x07, 0x2e, 0x3b,
-	0x63, 0x6f, 0x76, 0x69, 0x64, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x32, 0x4c, 0x0a, 0x10, 0x43, 0x6f,
+	0x76, 0x69, 0x64, 0x44, 0x61, 0x74, 0x61, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x38,
+	0x0a, 0x0d, 0x47, 0x65, 0x74, 0x44, 0x61, 0x74, 0x61, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x12,
+	0x11, 0x2e, 0x43, 0x6f, 0x76, 0x69, 0x64, 0x44, 0x61, 0x74, 0x61, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x12, 0x2e, 0x43, 0x6f, 0x76, 0x69, 0x64, 0x44, 0x61, 0x74, 0x61, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x30, 0x01, 0x42, 0x09, 0x5a, 0x07, 0x2e, 0x3b, 0x63, 0x6f,
+	0x76, 0x69, 0x64, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -233,12 +230,10 @@ var file_covid_proto_goTypes = []interface{}{
 	(*CovidDataRequest)(nil),  // 1: CovidDataRequest
 }
 var file_covid_proto_depIdxs = []int32{
-	1, // 0: CovidDataService.GetData:input_type -> CovidDataRequest
-	1, // 1: CovidDataService.GetDataStream:input_type -> CovidDataRequest
-	0, // 2: CovidDataService.GetData:output_type -> CovidDataResponse
-	0, // 3: CovidDataService.GetDataStream:output_type -> CovidDataResponse
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
+	1, // 0: CovidDataService.GetDataStream:input_type -> CovidDataRequest
+	0, // 1: CovidDataService.GetDataStream:output_type -> CovidDataResponse
+	1, // [1:2] is the sub-list for method output_type
+	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -307,7 +302,6 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type CovidDataServiceClient interface {
-	GetData(ctx context.Context, in *CovidDataRequest, opts ...grpc.CallOption) (*CovidDataResponse, error)
 	GetDataStream(ctx context.Context, in *CovidDataRequest, opts ...grpc.CallOption) (CovidDataService_GetDataStreamClient, error)
 }
 
@@ -317,15 +311,6 @@ type covidDataServiceClient struct {
 
 func NewCovidDataServiceClient(cc grpc.ClientConnInterface) CovidDataServiceClient {
 	return &covidDataServiceClient{cc}
-}
-
-func (c *covidDataServiceClient) GetData(ctx context.Context, in *CovidDataRequest, opts ...grpc.CallOption) (*CovidDataResponse, error) {
-	out := new(CovidDataResponse)
-	err := c.cc.Invoke(ctx, "/CovidDataService/GetData", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *covidDataServiceClient) GetDataStream(ctx context.Context, in *CovidDataRequest, opts ...grpc.CallOption) (CovidDataService_GetDataStreamClient, error) {
@@ -362,7 +347,6 @@ func (x *covidDataServiceGetDataStreamClient) Recv() (*CovidDataResponse, error)
 
 // CovidDataServiceServer is the server API for CovidDataService service.
 type CovidDataServiceServer interface {
-	GetData(context.Context, *CovidDataRequest) (*CovidDataResponse, error)
 	GetDataStream(*CovidDataRequest, CovidDataService_GetDataStreamServer) error
 }
 
@@ -370,33 +354,12 @@ type CovidDataServiceServer interface {
 type UnimplementedCovidDataServiceServer struct {
 }
 
-func (*UnimplementedCovidDataServiceServer) GetData(context.Context, *CovidDataRequest) (*CovidDataResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetData not implemented")
-}
 func (*UnimplementedCovidDataServiceServer) GetDataStream(*CovidDataRequest, CovidDataService_GetDataStreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetDataStream not implemented")
 }
 
 func RegisterCovidDataServiceServer(s *grpc.Server, srv CovidDataServiceServer) {
 	s.RegisterService(&_CovidDataService_serviceDesc, srv)
-}
-
-func _CovidDataService_GetData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CovidDataRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CovidDataServiceServer).GetData(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/CovidDataService/GetData",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CovidDataServiceServer).GetData(ctx, req.(*CovidDataRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _CovidDataService_GetDataStream_Handler(srv interface{}, stream grpc.ServerStream) error {
@@ -423,12 +386,7 @@ func (x *covidDataServiceGetDataStreamServer) Send(m *CovidDataResponse) error {
 var _CovidDataService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "CovidDataService",
 	HandlerType: (*CovidDataServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "GetData",
-			Handler:    _CovidDataService_GetData_Handler,
-		},
-	},
+	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "GetDataStream",
