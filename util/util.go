@@ -3,7 +3,7 @@ package util
 import (
 	"time"
 
-	"github.com/luandersonn/covid-api-sd/csv"
+	covid "github.com/luandersonn/covid-api-sd/protofile"
 )
 
 // CasesPerCityResponse é a estrutura de resposta para solicitações de cidades e a quantidade de casos
@@ -42,10 +42,10 @@ type CovidCase struct {
 
 // Find procura por um caso de covid baseado no comparador passado
 // através de uma função lambda
-func Find(slice []csv.CovidData, comparer func(csv.CovidData) bool) *csv.CovidData {
+func Find(slice []*covid.CovidDataResponse, comparer func(*covid.CovidDataResponse) bool) *covid.CovidDataResponse {
 	for _, item := range slice {
 		if comparer(item) {
-			return &item
+			return item
 		}
 	}
 	return nil
@@ -53,8 +53,8 @@ func Find(slice []csv.CovidData, comparer func(csv.CovidData) bool) *csv.CovidDa
 
 // Map seleciona itens de um slice baseado no comparador passado
 // através de uma função lambda
-func Map(slice []csv.CovidData, comparer func(csv.CovidData) bool) []csv.CovidData {
-	result := []csv.CovidData{}
+func Map(slice []*covid.CovidDataResponse, comparer func(*covid.CovidDataResponse) bool) []*covid.CovidDataResponse {
+	result := []*covid.CovidDataResponse{}
 	for _, item := range slice {
 		if comparer(item) {
 			result = append(result, item)
@@ -64,9 +64,9 @@ func Map(slice []csv.CovidData, comparer func(csv.CovidData) bool) []csv.CovidDa
 }
 
 // GroupBy agrupa
-func GroupBy(slice []csv.CovidData, keySelector func(csv.CovidData) string) map[string][]csv.CovidData {
-	// Cria um dicionário [chave] -> slice de csv.CovidData
-	groups := make(map[string][]csv.CovidData)
+func GroupBy(slice []*covid.CovidDataResponse, keySelector func(*covid.CovidDataResponse) string) map[string][]*covid.CovidDataResponse {
+	// Cria um dicionário [chave] -> slice de *covid.CovidDataResponse
+	groups := make(map[string][]*covid.CovidDataResponse)
 
 	for _, item := range slice {
 		groups[keySelector(item)] = append(groups[keySelector(item)], item)

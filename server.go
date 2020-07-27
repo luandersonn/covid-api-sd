@@ -1,16 +1,19 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"sort"
 	"sync"
 	"time"
 
-	"github.com/luandersonn/covid-api-sd/csv"
+	covid "github.com/luandersonn/covid-api-sd/protofile"
 	"github.com/luandersonn/covid-api-sd/util"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -47,6 +50,52 @@ func main() {
 	wait.Wait()
 }
 
+func newRPCRequest() ([]*covid.CovidDataResponse, error) {
+	// Faz a ligação para o endereço do servidor RPC de leitura de csv
+	rpcAddress := "localhost:5001"
+	conn, err := grpc.Dial(rpcAddress, grpc.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
+
+	// Fecha a conexão ao finalizar o método
+	defer conn.Close()
+
+	// Obtem o serviço DataService
+	service := covid.NewCovidDataServiceClient(conn)
+
+	// Obtem o contexto com timeout de 15 segundos
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
+	defer cancel()
+
+	// Faz a requisição
+	stream, err := service.GetDataStream(ctx, &covid.CovidDataRequest{Name: "Server.go"})
+	if err != nil {
+		return nil, err
+	}
+	count := 0
+	// Faz o stream dos itens
+	covidCaseSlice := []*covid.CovidDataResponse{}
+	for {
+		covidCase, err := stream.Recv()
+		count++
+		if err == io.EOF {
+			return covidCaseSlice, nil
+		}
+		if err != nil {
+			return nil, err
+		}
+		if count > 10 && count < 20 {
+			if covidCase.GetPacientDistrict() == "" {
+				fmt.Println("NULL")
+			} else {
+				fmt.Println(covidCase.GetPacientDistrict())
+			}
+		}
+		covidCaseSlice = append(covidCaseSlice, covidCase)
+	}
+}
+
 // Printa as informações de cada requisição
 func printRequestInfo(request *http.Request) {
 	fmt.Println("New request")
@@ -59,10 +108,10 @@ func printRequestInfo(request *http.Request) {
 func casesPerCitiesHandler(responseWriter http.ResponseWriter, request *http.Request) {
 	printRequestInfo(request)
 
-	data, err := csv.ReadFile("/home/luandersonn/Downloads/casos_coronavirus.csv")
+	data, err := newRPCRequest()
 	ensureSuccessStatus(err)
 
-	keySelector := func(item csv.CovidData) string {
+	keySelector := func(item *covid.CovidDataResponse) string {
 		return item.PacientCity
 	}
 	responseData := util.CasesPerCityResponse{Date: time.Now()}
@@ -97,11 +146,11 @@ func getPacientHandler(responseWriter http.ResponseWriter, request *http.Request
 		return
 	}
 
-	data, err := csv.ReadFile("/home/luandersonn/Downloads/casos_coronavirus.csv")
+	data, err := newRPCRequest()
 	ensureSuccessStatus(err)
 
-	comparer := func(x csv.CovidData) bool {
-		return x.PacientCode == pacientCode
+	comparer := func(item *covid.CovidDataResponse) bool {
+		return item.PacientCode == pacientCode
 	}
 
 	result := util.Find(data, comparer)
@@ -115,7 +164,7 @@ func getPacientHandler(responseWriter http.ResponseWriter, request *http.Request
 			CityCode: result.CityCode,
 			State:    result.PacientState,
 			Code:     result.PacientCode,
-			Date:     result.Date,
+			//Date:     result.Date,
 		}
 	}
 	dataJSON, err := json.Marshal(responseData)
@@ -135,11 +184,11 @@ func getCityHandler(responseWriter http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	data, err := csv.ReadFile("/home/luandersonn/Downloads/casos_coronavirus.csv")
+	data, err := newRPCRequest()
 	ensureSuccessStatus(err)
 
-	comparer := func(x csv.CovidData) bool {
-		return x.CityCode == cityCode
+	comparer := func(item *covid.CovidDataResponse) bool {
+		return item.CityCode == cityCode
 	}
 
 	responseData := util.CityResponse{}
@@ -155,7 +204,7 @@ func getCityHandler(responseWriter http.ResponseWriter, request *http.Request) {
 				Gender:   covidCase.PacientGender,
 				District: covidCase.PacientDistrict,
 				Code:     covidCase.PacientCode,
-				Date:     covidCase.Date,
+				//Date:     covidCase.Date,
 			})
 	}
 

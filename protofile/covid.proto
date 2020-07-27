@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option go_package = ".;covid";
+
+message CovidDataResponse {
+  string pacient_code = 1;
+  string pacient_age = 2;
+  string pacient_gender = 3;
+  string pacient_district = 4;
+  string pacient_city = 5;
+  string pacient_state = 6;
+  string city_code = 7;
+  string date = 8;
+}
+
+message CovidDataRequest {
+  string name = 1;
+}
+
+service CovidDataService {
+  rpc GetData (CovidDataRequest) returns (CovidDataResponse);  
+  rpc GetDataStream (CovidDataRequest) returns (stream CovidDataResponse);
+}
