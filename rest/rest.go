@@ -18,7 +18,7 @@ import (
 
 func main() {
 	var wait sync.WaitGroup
-	wait.Add(3)
+	wait.Add(4)
 
 	port := 8080
 
@@ -42,6 +42,14 @@ func main() {
 	go func() {
 		http.HandleFunc("/city", getCityHandler)
 		log.Printf("Server \"/city\" starting on port %v\n", port)
+		http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
+		wait.Done()
+	}()
+
+	// handle /all_pacients
+	go func() {
+		http.HandleFunc("/all_pacients", getAllPacientsHandler)
+		log.Printf("Server \"/all_pacients\" starting on port %v\n", port)
 		http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
 		wait.Done()
 	}()
@@ -219,6 +227,67 @@ func getCityHandler(responseWriter http.ResponseWriter, request *http.Request) {
 	}
 
 	responseData.CasesCount = len(responseData.Cases)
+
+	dataJSON, err := json.Marshal(responseData)
+	ensureSuccessStatus(err)
+
+	responseWriter.Header().Set("Content-Type", "application/json")
+	fmt.Fprintln(responseWriter, string(dataJSON))
+}
+
+func getAllPacientsHandler(responseWriter http.ResponseWriter, request *http.Request) {
+	printRequestInfo(request)
+
+	var startDate *time.Time = nil
+	date1, err := time.Parse("2006-01-02", request.URL.Query().Get("start"))
+	if err != nil {
+		http.Error(responseWriter, "Bad request: Query param: start", http.StatusBadRequest)
+		return
+	}
+	startDate = &date1
+
+	var endDate *time.Time = nil
+	date2, err := time.Parse("2006-01-02", request.URL.Query().Get("end"))
+	if err != nil {
+		http.Error(responseWriter, "Bad request: Query param: end", http.StatusBadRequest)
+		return
+	}
+	endDate = &date2
+
+	data, err := newRPCRequest()
+	if err != nil {
+		http.Error(responseWriter, "Error 503 - Service Unavailable", http.StatusServiceUnavailable)
+		fmt.Printf("Erro ao acessar serviço RPC: %v\n", err)
+		return
+	}
+
+	comparer := func(item *covid.CovidDataResponse) bool {
+		var date *time.Time = nil
+		result, err := time.Parse("2006-01-02 15:04:05.0", item.Date)
+		if err != nil {
+			return false
+		}
+		date = &result
+		// Se a data está no intervalo
+
+		return startDate.Add(-(time.Hour * 24)).Before(*date) && endDate.Add((time.Hour * 24)).After(*date)
+	}
+
+	responseData := []util.CovidCase{}
+	for _, covidCase := range util.Map(data, comparer) {
+
+		responseData = append(responseData,
+			util.CovidCase{
+				Age:      covidCase.PacientAge,
+				Gender:   covidCase.PacientGender,
+				District: covidCase.PacientDistrict,
+				Code:     covidCase.PacientCode,
+				Date:     covidCase.Date,
+				City:     covidCase.PacientCity,
+				CityCode: covidCase.CityCode,
+				State:    covidCase.PacientState,
+			})
+	}
 
 	dataJSON, err := json.Marshal(responseData)
 	ensureSuccessStatus(err)
